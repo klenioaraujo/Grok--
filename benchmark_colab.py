@@ -22,6 +22,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE_DIR)
 
 from grok_omega import GrokOmega, create_grok_omega
+from grok_omega_glue import create_grok_omega_glue, train_glue_model, create_glue_context, get_num_classes
 from PiBase import PiBase, create_pi_base
 
 
@@ -260,6 +261,61 @@ class ColabBenchmark:
 
         return True
 
+    def benchmark_glue_tasks(self):
+        """Benchmark GROK-Ω on GLUE tasks."""
+        print("\n📚 Testing GLUE Tasks...")
+
+        glue_tasks = ['cola', 'sst2', 'mrpc', 'stsb']  # Focus on key tasks for demo
+        glue_results = {}
+
+        for task_name in glue_tasks:
+            print(f"\n   🔬 Testing {task_name.upper()}...")
+
+            try:
+                # Create context
+                context = create_glue_context(task_name, max_samples=3)
+                print(f"   📝 Context created for {task_name}")
+
+                # Train model (reduced steps for benchmark)
+                num_classes = get_num_classes(task_name)
+                model, metrics = train_glue_model(
+                    task_name,
+                    num_classes=num_classes,
+                    total_steps=1000,  # Reduced for benchmark
+                    batch_size=8,
+                    lr=1e-3
+                )
+
+                glue_results[task_name] = {
+                    'metrics': metrics,
+                    'context_length': len(context),
+                    'training_steps': 1000,
+                    'status': 'completed'
+                }
+
+                # Print results
+                if task_name == 'stsb':
+                    print(f"     📊 Pearson: {metrics['pearson']:.4f}, Spearman: {metrics['spearman']:.4f}")
+                elif task_name == 'cola':
+                    print(f"     📊 Acc: {metrics['accuracy']:.4f}, F1: {metrics['f1']:.4f}, MCC: {metrics['matthews_correlation']:.4f}")
+                else:
+                    print(f"     📊 Acc: {metrics['accuracy']:.4f}, F1: {metrics['f1']:.4f}")
+
+            except Exception as e:
+                print(f"     ❌ Failed {task_name}: {e}")
+                glue_results[task_name] = {
+                    'error': str(e),
+                    'status': 'failed'
+                }
+
+        self.results['glue_benchmark'] = glue_results
+
+        # Check if any GLUE task succeeded
+        successful_tasks = sum(1 for task in glue_results.values() if task.get('status') == 'completed')
+        print(f"   ✅ GLUE tasks completed: {successful_tasks}/{len(glue_tasks)}")
+
+        return successful_tasks > 0
+
     def benchmark_pi_base(self):
         """Test PiBase π-centric operations."""
         print("\n🌀 Testing PiBase (π-operations)...")
@@ -347,6 +403,7 @@ class ColabBenchmark:
             self.benchmark_initialization,
             self.benchmark_physics_integrity,
             self.benchmark_performance,
+            self.benchmark_glue_tasks,
             self.benchmark_wikitext_training,
             self.benchmark_generation_quality,
             self.benchmark_pi_base,
@@ -379,7 +436,12 @@ class ColabBenchmark:
         if 'performance' in self.results:
             perf = self.results['performance']
             if 'seq_100' in perf:
-                print(".1f"        if 'generation' in self.results:
+                print(".1f"        if 'glue_benchmark' in self.results:
+            glue = self.results['glue_benchmark']
+            successful = sum(1 for task in glue.values() if task.get('status') == 'completed')
+            print(f"GLUE Benchmark: {successful}/{len(glue)} tasks completed")
+
+        if 'generation' in self.results:
             gen = self.results['generation']
             print(f"Generation Tests: {len(gen)} prompts tested")
 
