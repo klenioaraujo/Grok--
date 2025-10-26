@@ -5,6 +5,38 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.utils.data import DataLoader, Dataset
+import datasets
+from transformers import AutoTokenizer
+import math
+
+# Real-valued loss function
+def real_loss(logits, targets):
+    return F.cross_entropy(logits, targets)
+
+class WikiTextDataset(Dataset):
+    def __init__(self, split='train', seq_len=32, vocab_size=1000):
+        self.tokenizer = AutoTokenizer.from_pretrained('gpt2')
+        self.tokenizer.pad_token = self.tokenizer.eos_token
+        self.seq_len = seq_len
+        self.vocab_size = vocab_size
+
+        # Load WikiText-2
+        dataset = datasets.load_dataset('wikitext', 'wikitext-2-raw-v1', split=split)
+        text = ' '.join(dataset['text'])
+        tokens = self.tokenizer.encode(text, add_special_tokens=False)
+        # Truncate to a smaller size for testing
+        tokens = tokens[:1000]  # Use only first 1k tokens
+        self.data = torch.tensor(tokens[:len(tokens)//seq_len * seq_len]).view(-1, seq_len)
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        x = self.data[idx]
+        y = torch.roll(x, -1, dims=0)
+        y[-1] = self.tokenizer.eos_token_id
+        return x, y
 
 class GROK_Omega(nn.Module):
     def __init__(self, vocab_size=1000, seq_len=32, dim=64, num_heads=4):
@@ -95,98 +127,18 @@ class GROK_Omega(nn.Module):
         evolved = evolved.view(B, T, self.num_heads, self.head_dim)
         spectral_attn = spectral_attn.view(B, T, self.num_heads, self.head_dim)
 
-        context_heads = []
+        # Projetar cada head separadamente per position
+        logits_heads = []
         for h in range(self.num_heads):
             attn_h = spectral_attn[:, :, h, :]  # (B, T, head_dim)
             evolved_h = evolved[:, :, h, :]  # (B, T, head_dim)
             weights_h = attn_h / (attn_h.sum(dim=1, keepdim=True) + 1e-8)
-            context_h = (evolved_h * weights_h).sum(dim=1)  # (B, head_dim)
-            context_heads.append(context_h)
-        context_heads = torch.stack(context_heads, dim=1)  # (B, num_heads, head_dim)
-
-        # Projetar cada head separadamente
-        logits_heads = []
-        for h in range(self.num_heads):
-            logits_h = self.to_interfere[h](context_heads[:, h])  # (B, vocab_size)
+            context_h = evolved_h * weights_h  # (B, T, head_dim)
+            logits_h = self.to_interfere[h](context_h)  # (B, T, vocab_size)
             logits_heads.append(logits_h)
-        logits = torch.stack(logits_heads, dim=0).mean(dim=0)  # (B, vocab_size)
+        logits = torch.stack(logits_heads, dim=0).mean(dim=0)  # (B, T, vocab_size)
 
         return logits
-# grok_omega_v0.1.py
-# Protótipo mínimo, mas FUNCIONAL
-# Sem mentira. Sem mágica. Só física simulada.
-
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.utils.data import DataLoader, Dataset
-import datasets
-from transformers import AutoTokenizer
-import math
-
-# Real-valued loss function
-def real_loss(logits, targets):
-    return F.cross_entropy(logits.real, targets)
-
-class WikiTextDataset(Dataset):
-    def __init__(self, split='train', seq_len=32, vocab_size=1000):
-        self.tokenizer = AutoTokenizer.from_pretrained('gpt2')
-        self.tokenizer.pad_token = self.tokenizer.eos_token
-        self.seq_len = seq_len
-        self.vocab_size = vocab_size
-
-        # Load WikiText-2
-        dataset = datasets.load_dataset('wikitext', 'wikitext-2-raw-v1', split=split)
-        text = ' '.join(dataset['text'])
-        tokens = self.tokenizer.encode(text, add_special_tokens=False)
-        self.data = torch.tensor(tokens[:len(tokens)//seq_len * seq_len]).view(-1, seq_len)
-
-    def __len__(self):
-        return len(self.data)
-
-    def __getitem__(self, idx):
-        x = self.data[idx]
-        y = torch.roll(x, -1, dims=0)
-        y[-1] = self.tokenizer.eos_token_id
-        return x, y
-
-# grok_omega_v0.1.py
-# Protótipo mínimo, mas FUNCIONAL
-# Sem mentira. Sem mágica. Só física simulada.
-
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.utils.data import DataLoader, Dataset
-import datasets
-from transformers import AutoTokenizer
-import math
-
-# Real-valued loss function
-def real_loss(logits, targets):
-    return F.cross_entropy(logits.real, targets)
-
-class WikiTextDataset(Dataset):
-    def __init__(self, split='train', seq_len=32, vocab_size=1000):
-        self.tokenizer = AutoTokenizer.from_pretrained('gpt2')
-        self.tokenizer.pad_token = self.tokenizer.eos_token
-        self.seq_len = seq_len
-        self.vocab_size = vocab_size
-
-        # Load WikiText-2
-        dataset = datasets.load_dataset('wikitext', 'wikitext-2-raw-v1', split=split)
-        text = ' '.join(dataset['text'])
-        tokens = self.tokenizer.encode(text, add_special_tokens=False)
-        self.data = torch.tensor(tokens[:len(tokens)//seq_len * seq_len]).view(-1, seq_len)
-
-    def __len__(self):
-        return len(self.data)
-
-    def __getitem__(self, idx):
-        x = self.data[idx]
-        y = torch.roll(x, -1, dims=0)
-        y[-1] = self.tokenizer.eos_token_id
-        return x, y
 
 def train_model():
     # Model parameters
@@ -195,7 +147,7 @@ def train_model():
     dim = 64
     num_heads = 4
     batch_size = 8
-    epochs = 1
+    total_steps = 10000
     lr = 1e-3
 
     # Initialize model
@@ -207,22 +159,52 @@ def train_model():
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
     model.train()
-    for epoch in range(epochs):
-        total_loss = 0
-        for batch_idx, (x, y) in enumerate(train_loader):
-            optimizer.zero_grad()
-            logits = model(x)
-            loss = real_loss(logits, y)
-            loss.backward()
-            optimizer.step()
-            total_loss += loss.item()
+    step = 0
+    data_iter = iter(train_loader)
+    while step < total_steps:
+        try:
+            x, y = next(data_iter)
+        except StopIteration:
+            data_iter = iter(train_loader)
+            x, y = next(data_iter)
 
-            if batch_idx % 100 == 0:
-                print(f"Epoch {epoch+1}, Batch {batch_idx}, Loss: {loss.item():.4f}")
+        optimizer.zero_grad()
+        logits = model(x)
+        loss = real_loss(logits.view(-1, logits.size(-1)), y.view(-1))
+        loss.backward()
+        optimizer.step()
 
-        print(f"Epoch {epoch+1} completed, Average Loss: {total_loss / len(train_loader):.4f}")
+        if step % 100 == 0:
+            print(f"Step {step}, Loss: {loss.item():.4f}")
+
+        step += 1
+
+    print(f"Training completed after {total_steps} steps.")
+    return model
+
+def generate_text(model, tokenizer, prompt="hello world", max_length=50):
+    model.eval()
+    tokens = tokenizer.encode(prompt, add_special_tokens=False)
+    input_ids = torch.tensor(tokens).unsqueeze(0)  # (1, T)
+
+    generated = tokens.copy()
+    with torch.no_grad():
+        for _ in range(max_length):
+            logits = model(input_ids)
+            next_token = torch.argmax(logits[:, -1], dim=-1).item()
+            generated.append(next_token)
+            input_ids = torch.cat([input_ids, torch.tensor([[next_token]])], dim=1)
+            if next_token == tokenizer.eos_token_id:
+                break
+
+    text = tokenizer.decode(generated, skip_special_tokens=True)
+    return text
 
 if __name__ == "__main__":
-    train_model()
+    model = train_model()
+    tokenizer = AutoTokenizer.from_pretrained('gpt2')
+    tokenizer.pad_token = tokenizer.eos_token
+    generated_text = generate_text(model, tokenizer, prompt="hello world")
+    print("Generated text:", generated_text)
 
 # "Eu errei. Aqui está a verdade."
