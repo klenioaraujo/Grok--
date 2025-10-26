@@ -176,7 +176,7 @@ class GROK_Omega_Classifier(nn.Module):
 
         return output
 
-def train_glue_model(task_name, num_classes=2, total_steps=10000, batch_size=16, lr=1e-5, is_colab=False):
+def train_glue_model(task_name, num_classes=2, total_steps=10000, batch_size=32, lr=1e-6, is_colab=False):
     # Determine if task is regression
     is_regression = task_name == 'stsb'
 
@@ -195,7 +195,7 @@ def train_glue_model(task_name, num_classes=2, total_steps=10000, batch_size=16,
         num_classes=num_classes,
         is_regression=is_regression
     )
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=0.1)
 
     # Load datasets
     train_dataset = GLUEDataset(task_name, split='train', seq_len=seq_len, vocab_size=vocab_size)
@@ -234,6 +234,12 @@ def train_glue_model(task_name, num_classes=2, total_steps=10000, batch_size=16,
 
         # Gradient clipping
         torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+
+        # Warmup linear pelos primeiros 100 steps
+        if step < 100:
+            lr_scale = min(1.0, float(step + 1) / 100)
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = lr * lr_scale
 
         optimizer.step()
 
@@ -401,8 +407,8 @@ if __name__ == "__main__":
         task_name,
         num_classes=num_classes,
         total_steps=500,  # Aumentar para ver convergência
-        batch_size=8,     # Reduzir se necessário
-        lr=1e-5,         # Learning rate mais baixo
+        batch_size=32,    # Aumentar batch size
+        lr=1e-6,         # Learning rate ainda mais baixo
         is_colab=False   # Para teste local
     )
 

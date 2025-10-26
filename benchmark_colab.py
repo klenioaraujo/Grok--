@@ -282,8 +282,8 @@ class ColabBenchmark:
                     task_name,
                     num_classes=num_classes,
                     total_steps=500,  # Reduced for benchmark
-                    batch_size=8,
-                    lr=1e-5,  # More conservative learning rate
+                    batch_size=32,  # Larger batch for stability
+                    lr=1e-6,  # Very conservative learning rate
                     is_colab=True  # Colab mode
                 )
 
