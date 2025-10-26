@@ -109,7 +109,7 @@ python3 grok_omega.py
 ### LICENSE
 
 This code is part of the ΨQRH (Psi Quantum Relativistic Harmonics) system and follows the same license.
-
+https://github.com/klenioaraujo/Reformulating-Transformers-for-LLMs/tree/pure_physics_PsiQRH
 ---
 
 *"Language is not made of words. Language is made of waves."*# Grok--
