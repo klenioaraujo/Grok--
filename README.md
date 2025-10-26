@@ -176,4 +176,4 @@ This project is an extension of the ΨQRH (Psi Quantum Relativistic Harmonics) s
 This code is part of the ΨQRH (Psi Quantum Relativistic Harmonics) system and follows the same license.
 ---
 
-*"Language is not made of words. Language is made of waves."*# Grok--
+*"Language is not made of words. Language is made of waves."* 
