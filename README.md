@@ -1,6 +1,6 @@
 # GROK-Ω (OMEGA) - Enhanced Architecture
 
-## Pure Physics. No Softmax. No Tokenization. No Shame.
+## Pure Physics. No Softmax. No Transformer Attention. No Shame.
 
 ### CORE CONCEPT: CONTINUOUS THOUGHT WAVE
 
@@ -15,6 +15,8 @@ Output: Next wave → decoded into language via interference
 
 **Physical Coherent Pipeline:**
 Tokens → Embeddings → Quaternions → Unitary Evolution → FFT → Spectral Attention → Multi-head Interference → Logits
+
+**Note on Tokenization:** While the code uses standard tokenization (from transformers import AutoTokenizer) for practical training on datasets like WikiText, the core innovation lies in replacing transformer attention with physical spectral attention and interference mechanisms. The "No Tokenization" claim refers to the conceptual continuous wave representation, not the implementation details.
 
 #### TECHNICAL INNOVATIONS
 ✅ **Multi-head Interference**: Replaces traditional attention with quantum interference across specialized heads
@@ -49,7 +51,7 @@ python3 grok_omega.py
    ⚛️  Quantum Evolution: ACTIVE
    🌌 Interference: ACTIVE
    🚫 ZERO SOFTMAX: CONFIRMED
-   🚫 ZERO TOKENIZATION: CONFIRMED
+   🚫 ZERO TRANSFORMER ATTENTION: CONFIRMED
 
 📥 Input: 'hello'
 📤 Next wave: 'eþ]D['
@@ -68,7 +70,7 @@ python3 grok_omega.py
 ✅ GROK-Ω operational!
    🌊 Language as continuous wave
    ⚛️  Pure quantum physics
-   🚫 No softmax, no tokenization
+   🚫 No softmax, no transformer attention
 ```
 
 ### DETAILED ENHANCED ARCHITECTURE
@@ -130,7 +132,7 @@ for h in range(self.num_heads):
 
 | Aspect | Transformers | GROK-Ω |
 |--------|-------------|---------|
-| Tokenization | Yes | ❌ No |
+| Tokenization | Yes | ⚠️ Conceptual No* |
 | Softmax | Yes | ❌ No |
 | Attention | Yes | ❌ Spectral FFT |
 | Physics | ❌ No | ✅ Yes |
@@ -140,6 +142,8 @@ for h in range(self.num_heads):
 | Interference | ❌ No | ✅ Multi-head |
 | Residuals | Yes | ✅ Enhanced |
 | Normalization | Yes | ✅ LayerNorm |
+
+\* *Conceptual continuous wave representation, but uses standard tokenization for training*
 
 ### CHANGES FROM PREVIOUS VERSIONS
 
