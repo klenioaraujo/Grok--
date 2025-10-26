@@ -95,6 +95,9 @@ class GROK_Omega_Classifier(nn.Module):
         self.H_real = nn.Parameter(torch.randn(dim, dim))
         self.H_imag = nn.Parameter(torch.randn(dim, dim))
 
+        # Regularização
+        self.dropout = nn.Dropout(0.1)
+
         # 4. Multi-head Interferência
         self.to_interfere = nn.ModuleList([nn.Linear(self.head_dim, vocab_size) for _ in range(num_heads)])
 
@@ -137,6 +140,9 @@ class GROK_Omega_Classifier(nn.Module):
         # Residual connection after evolution
         evolved = evolved + x_res
 
+        # Aplicar dropout para regularização
+        evolved = self.dropout(evolved)
+
         # 4. Spectral Attention using FFT
         evolved_fft = torch.fft.fft(evolved, dim=1)  # FFT along sequence dimension
         spectral_attn = torch.abs(evolved_fft)  # (B, T, dim)
@@ -170,7 +176,7 @@ class GROK_Omega_Classifier(nn.Module):
 
         return output
 
-def train_glue_model(task_name, num_classes=2, total_steps=10000, batch_size=16, lr=1e-4):
+def train_glue_model(task_name, num_classes=2, total_steps=10000, batch_size=16, lr=1e-5, is_colab=False):
     # Determine if task is regression
     is_regression = task_name == 'stsb'
 
@@ -225,10 +231,24 @@ def train_glue_model(task_name, num_classes=2, total_steps=10000, batch_size=16,
             loss = loss_fn(outputs, y)
 
         loss.backward()
+
+        # Gradient clipping
+        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+
         optimizer.step()
 
-        if step % 100 == 0:
-            print(f"Step {step}, Loss: {loss.item():.4f}")
+        if step % 50 == 0:  # Log mais frequente
+            print(f"Step {step}, Loss: {loss.item():.4f}, LR: {optimizer.param_groups[0]['lr']:.2e}")
+
+            if not is_colab:  # Só mostrar gradientes no local, não no Colab
+                # Verificar gradientes
+                total_norm = 0
+                for p in model.parameters():
+                    if p.grad is not None:
+                        param_norm = p.grad.data.norm(2)
+                        total_norm += param_norm.item() ** 2
+                total_norm = total_norm ** 0.5
+                print(f"Gradient Norm: {total_norm:.4f}")
 
         step += 1
 
@@ -373,11 +393,18 @@ def create_glue_context(task_name, split='validation', max_samples=100):
         return f"Error creating GLUE context: {e}"
 
 if __name__ == "__main__":
-    # Test on SST-2 (binary sentiment classification)
-    task_name = 'sst2'
+    # Configuração mais conservadora para estabilidade
+    task_name = 'sst2'  # Começar com tarefa mais simples
     num_classes = get_num_classes(task_name)
 
-    model, metrics = train_glue_model(task_name, num_classes=num_classes, total_steps=100)  # Reduced for testing
+    model, metrics = train_glue_model(
+        task_name,
+        num_classes=num_classes,
+        total_steps=500,  # Aumentar para ver convergência
+        batch_size=8,     # Reduzir se necessário
+        lr=1e-5,         # Learning rate mais baixo
+        is_colab=False   # Para teste local
+    )
 
     message = generate_glue_message(task_name, metrics)
     print("\n" + "="*50)

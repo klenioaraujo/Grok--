@@ -281,9 +281,10 @@ class ColabBenchmark:
                 model, metrics = train_glue_model(
                     task_name,
                     num_classes=num_classes,
-                    total_steps=1000,  # Reduced for benchmark
+                    total_steps=500,  # Reduced for benchmark
                     batch_size=8,
-                    lr=1e-3
+                    lr=1e-5,  # More conservative learning rate
+                    is_colab=True  # Colab mode
                 )
 
                 glue_results[task_name] = {
