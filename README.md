@@ -1,4 +1,4 @@
-# GROK-Ω (OMEGA) - The Anti-Transformer
+# GROK-Ω (OMEGA) - Enhanced Architecture
 
 ## Pure Physics. No Softmax. No Tokenization. No Shame.
 
@@ -11,19 +11,25 @@ Language = continuous wave in semantic phase space
 Input: Sentence as wave field
 Output: Next wave → decoded into language via interference
 
-### ARCHITECTURE: 3 LAYERS, ZERO SOFTMAX
+### ENHANCED ARCHITECTURE: ADVANCED PHYSICAL PIPELINE
 
-1. **QUANTUM LAYER**: Transforms text into quaternionic field
-2. **EVOLUTION LAYER**: Temporal evolution via Schrödinger equation
-3. **INTERFERENCE LAYER**: Decoding via quantum interference
+**Physical Coherent Pipeline:**
+Tokens → Embeddings → Quaternions → Unitary Evolution → FFT → Spectral Attention → Multi-head Interference → Logits
+
+#### TECHNICAL INNOVATIONS
+✅ **Multi-head Interference**: Replaces traditional attention with quantum interference across specialized heads
+✅ **Spectral Attention with FFT**: Operates in frequency domain for capturing sequence patterns
+✅ **Residual Connections**: Stabilizes training through skip connections
+✅ **Layer Normalization**: Professional normalization for stable gradients
 
 ### PHYSICAL PRINCIPLES
 
 1. **Padilha Equation**: f(λ,t) = I₀ sin(ωt + αλ) e^(i(ωt - kλ + βλ²))
 2. **Quaternionic Fields**: ψ ∈ ℍ (quaternion field)
 3. **Unitary Evolution**: iℏ ∂ψ/∂t = H ψ
-4. **Quantum Interference**: Decoding via interference patterns
-5. **ZERO FALLBACK POLICY**: Physical failure is honest failure
+4. **Spectral Attention**: FFT-based attention in frequency domain
+5. **Multi-head Interference**: Parallel quantum interference heads
+6. **ZERO FALLBACK POLICY**: Physical failure is honest failure
 
 ### INSTALLATION AND USAGE
 
@@ -65,27 +71,60 @@ python3 grok_omega.py
    🚫 No softmax, no tokenization
 ```
 
-### DETAILED ARCHITECTURE
+### DETAILED ENHANCED ARCHITECTURE
 
-#### 1. QuaternionicField
-- Converts text into quaternionic wave field
-- Uses Padilha equation for physical encoding
-- ψ₀: real component (magnitude)
-- ψ₁: i component (temporal coherence)
-- ψ₂: j component (spatial coherence)
-- ψ₃: k component (semantic coherence)
+#### 1. Token Embedding + Layer Normalization
+- Standard token embeddings with positional encoding
+- Layer normalization after embedding for stable gradients
 
-#### 2. QuantumEvolutionLayer
-- Temporal evolution via Schrödinger equation
-- Learnable Hamiltonian (Hermitian matrix)
-- Preserves unitarity and quantum norm
-- iℏ ∂ψ/∂t = H ψ
+#### 2. Quaternionic Projection + Normalization
+- Projects embeddings to 4-component quaternionic field
+- Layer normalization after quaternionic transformation
 
-#### 3. InterferenceDecoder
-- Decoding via quantum interference
-- |⟨ψ|φ_j⟩|² for quantum similarity
-- No softmax - direct selection by maximum interference
-- ZERO FALLBACK POLICY
+#### 3. Unitary Evolution Layer
+- Temporal evolution via learnable complex Hamiltonian
+- Matrix exponential for unitary evolution
+- Preserves quantum norm and unitarity
+
+#### 4. Residual Connection
+- Skip connection from embedding to post-evolution
+- Stabilizes training gradients
+
+#### 5. Spectral Attention via FFT
+- FFT transforms sequence to frequency domain
+- Attention operates on spectral magnitudes
+- Captures frequency patterns in sequences
+
+#### 6. Multi-head Interference
+- Parallel heads with independent spectral attention
+- Each head specializes in different frequency bands
+- Interference-based weighting (no softmax)
+- Aggregated logits across heads
+
+#### 7. ZERO FALLBACK POLICY
+- Physical failure is honest failure
+- No fallback mechanisms or approximations
+
+### TECHNICAL INNOVATIONS IN DETAIL
+
+#### Spectral Attention via FFT
+```python
+evolved_fft = torch.fft.fft(evolved, dim=1)
+spectral_attn = torch.abs(evolved_fft)  # Frequency domain attention!
+```
+✅ **Attention in spectral domain** (not temporal)
+✅ **Captures frequency patterns** in sequences
+
+#### Multi-head Interference
+```python
+# Each head projects independently
+logits_heads = []
+for h in range(self.num_heads):
+    # Spectral attention per head
+    weights_h = attn_h / (attn_h.sum(dim=1, keepdim=True) + 1e-8)
+```
+✅ **Parallelism like transformers**
+✅ **Spectral specialization** per head
 
 ### DIFFERENCES FROM TRANSFORMERS
 
@@ -93,12 +132,27 @@ python3 grok_omega.py
 |--------|-------------|---------|
 | Tokenization | Yes | ❌ No |
 | Softmax | Yes | ❌ No |
-| Attention | Yes | ❌ No |
+| Attention | Yes | ❌ Spectral FFT |
 | Physics | ❌ No | ✅ Yes |
 | Waves | ❌ No | ✅ Yes |
 | Quaternions | ❌ No | ✅ Yes |
-| Evolution | ❌ No | ✅ Schrödinger |
-| Interference | ❌ No | ✅ Quantum |
+| Evolution | ❌ No | ✅ Unitary |
+| Interference | ❌ No | ✅ Multi-head |
+| Residuals | Yes | ✅ Enhanced |
+| Normalization | Yes | ✅ LayerNorm |
+
+### CHANGES FROM PREVIOUS VERSIONS
+
+#### From grok_omega_false.py:
+- **Removed**: Complex character-level processing, separate classes
+- **Added**: Multi-head interference, spectral FFT attention, residual connections, layer normalization
+- **Enhanced**: Pipeline now includes proper tokenization and training loop
+
+#### From grok_omega_concept.py:
+- **Added**: Multi-head architecture (was single-head)
+- **Added**: Spectral attention via FFT (was temporal mean)
+- **Added**: Residual connections and layer normalization
+- **Enhanced**: Proper training with WikiText dataset
 
 ### ZERO FALLBACK POLICY
 
@@ -106,10 +160,16 @@ python3 grok_omega.py
 - **Pure physics**: Everything based on rigorous physical principles
 - **No lies**: Results always reflect the underlying physics
 
+### PROJECT EXTENSIONS
+
+This project is an extension of the ΨQRH (Psi Quantum Relativistic Harmonics) system:
+
+- **Zenodo Record**: https://zenodo.org/records/17171112
+- **GitHub Repository**: https://github.com/klenioaraujo/Reformulating-Transformers-for-LLMs/tree/pure_physics_PsiQRH
+
 ### LICENSE
 
 This code is part of the ΨQRH (Psi Quantum Relativistic Harmonics) system and follows the same license.
-https://github.com/klenioaraujo/Reformulating-Transformers-for-LLMs/tree/pure_physics_PsiQRH
 ---
 
 *"Language is not made of words. Language is made of waves."*# Grok--
