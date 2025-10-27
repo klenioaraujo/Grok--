@@ -1,34 +1,44 @@
 
 
-🚀 TREINANDO ΨQRH VERDADEIRO (DOE-COMPLIANT)
+🚀 TREINANDO ΨQRH MELHORADO (DOE-COMPLIANT+)
 ============================================================
 📊 Dataset: 80 amostras
 📊 Vocabulário: 52 tokens
-🔬 VALIDAÇÃO DOE-COMPLIANCE:
-----------------------------------------
+🔬 VALIDAÇÃO DOE-COMPLIANCE MELHORADA:
+--------------------------------------------------
 ✅ SEM softmax attention
 ✅ 8 camadas FFT detectadas
-✅ 2 camadas HamiltonProduct
-✅ 2 filtros espectrais logarítmicos
-✅ 2 camadas HamiltonianEvolution
-✅ Parâmetros totais: 31,202
-🎉 MODELO 100% DOE-COMPLIANT!
+✅ 4 camadas HamiltonProduct
+✅ 2 camadas com produto triplo Ψ(Q,R,H)
+✅ 2 camadas com rotação bilateral q_left * Ψ * q_right†
+✅ SEM matrizes de rotação SO(4) - apenas quaterniões unitários
+✅ Parâmetros totais: 31,426
+🎉 MODELO 100% DOE-COMPLIANT COM MELHORIAS DE FIDELIDADE!
+🧪 TESTE QUATERNIÔNICO MELHORADO:
+  1 * i = [0.0, 1.0, 0.0, 0.0]
+  Esperado: [0.0, 1.0, 0.0, 0.0]
+  ✅ Produto Hamiltoniano básico funcionando
+  (1 * i) * j = [0.0, 0.0, 0.0, 1.0]
+  Esperado: [0.0, 0.0, 0.0, 1.0] (k)
+  ✅ Produto triplo Hamiltoniano funcionando
 
 🎯 Iniciando treinamento...
-🧮 Dimensões: d_model=64 → quat_dim=16
-Época  5: Loss=0.4673, Acc=0.8000
-Época 10: Loss=0.3688, Acc=0.8000
-Época 15: Loss=0.1959, Acc=1.0000
+🧮 Arquitetura: Produto triplo + Rotações bilaterais
+Época  5: Loss=0.4828, Acc=0.8000
+Época 10: Loss=0.4085, Acc=0.8000
+Época 15: Loss=0.2372, Acc=0.8375
 
-📈 Acurácia final: 0.9875
+📈 Acurácia final: 0.8500
 
-============================================================
-🎉 ΨQRH VERDADEIRO IMPLEMENTADO COM SUCESSO!
-✅ ESTRITAMENTE CONFORME DOE
+======================================================================
+🎉 ΨQRH MELHORADO IMPLEMENTADO COM SUCESSO!
+✅ FIDELIDADE MÁXIMA AO DOE
    • Sem softmax attention
-   • Operações quaterniônicas reais
+   • Produto triplo quaterniônico Ψ(Q,R,H)
+   • Rotações bilaterais: q_left * Ψ * q_right†
+   • Sem matrizes SO(4) - apenas quaterniões unitários
    • Interferência espectral com FFT
-   • Evolução Hamiltoniana SO(4)
    • Complexidade O(n log n)
-============================================================
+======================================================================
 
+Produtos pagos do Colab - Cancelar contratos
